@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Message } from '../entities/message/message';
 import { MessageRepository } from '../repositories/message-repository';
+import { MessagingRepository } from '../repositories/messaging-repository';
 
 interface ReceiveQuestionMessageRequest {
   content: string;
@@ -14,7 +15,10 @@ interface ReceiveQuestionMessageResponse {
 
 @Injectable()
 export class ReceiveQuestionMessage {
-  constructor(private messageRepository: MessageRepository) {}
+  constructor(
+    private messageRepository: MessageRepository,
+    private messagingRepository: MessagingRepository
+  ) {}
 
   async execute(
     request: ReceiveQuestionMessageRequest,
@@ -28,6 +32,8 @@ export class ReceiveQuestionMessage {
     });
 
     await this.messageRepository.create(question);
+
+    await this.messagingRepository.publish<Message>(question);
 
     return {
       question,
