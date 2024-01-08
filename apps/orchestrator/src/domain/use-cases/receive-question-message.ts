@@ -1,8 +1,7 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Message } from '../entities/message/message';
 import { MessageRepository } from '../repositories/message-repository';
-import { lastValueFrom } from 'rxjs';
-import { ClientKafka } from '@nestjs/microservices';
+import { MessagingRepository } from '../repositories/messaging-repository';
 
 interface ReceiveQuestionMessageRequest {
   content: string;
@@ -18,8 +17,7 @@ interface ReceiveQuestionMessageResponse {
 export class ReceiveQuestionMessage {
   constructor(
     private messageRepository: MessageRepository,
-    @Inject('QUESTIONS_SERVICE')
-    private kafkaClient: ClientKafka
+    private messagingRepository: MessagingRepository
   ) {}
 
   async execute(
@@ -35,7 +33,7 @@ export class ReceiveQuestionMessage {
 
     await this.messageRepository.create(question);
 
-    await lastValueFrom(this.kafkaClient.emit('message.receive', JSON.stringify(question)));
+    await this.messagingRepository.publish<Message>(question);
 
     return {
       question,
