@@ -5,7 +5,9 @@ import { QuestionMessageViewModel } from '../view-models/question-message-view-m
 
 @Controller('message')
 export class MessageController {
-  constructor(private receiveQuestionMessage: ReceiveQuestionMessage) {}
+  constructor(
+    private receiveQuestionMessage: ReceiveQuestionMessage,
+  ) {}
 
   @Post('')
   async create(@Body() body: ReceiveQuestionMessageBody) {
